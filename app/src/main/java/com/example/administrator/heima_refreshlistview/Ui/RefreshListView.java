@@ -148,9 +148,11 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (paddingTop < 0) {
+                //如果当前状态为下拉刷新状态，则顶部回弹
+                if (state == PULL_TO_REFRESH) {
                     refreshHeader.setPadding(0, -refreshHeaderHight, 0, 0);
-                } else {
+                    //如果当前状态为释放刷新状态，则顶部回弹
+                } else if (state == RELEASE_REFRESH){
                     refreshHeader.setPadding(0, 0, 0, 0);
                     state = RELEASING;
                     updateHeader();
@@ -191,15 +193,16 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     //当主线程内添加完数据后，调用的方法，更新listview的控件状态
     public void onRefreshComplete() {
         if (isLoadMore) {
-            isLoadMore = false;
             refreshFooter.setPadding(0, -refreshFooterHight, 0, 0);
+            isLoadMore = false;
+        } else {
+            state = PULL_TO_REFRESH;
+            refreshHeader.setPadding(0, -refreshHeaderHight, 0, 0);
+            iv_arrow.setVisibility(VISIBLE);
+            pb.setVisibility(INVISIBLE);
+            String time = getTime();
+            tv_time.setText(time);
         }
-        state = PULL_TO_REFRESH;
-        refreshHeader.setPadding(0, -refreshHeaderHight, 0, 0);
-        iv_arrow.setVisibility(VISIBLE);
-        pb.setVisibility(INVISIBLE);
-        String time = getTime();
-        tv_time.setText(time);
     }
 
     public String getTime() {
